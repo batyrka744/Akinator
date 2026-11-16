@@ -4,44 +4,44 @@
 //zvuki ph actresses
 
 
-int main() {
-    clean_file(LOG_FILE);
+// int main() {
+//     clean_file(LOG_FILE);
 
-    FILE* file_tree_write = fopen(TREE_FILE_WRITE, "w");
-    FILE* file_tree_read = fopen(TREE_FILE_READ, "r");
-    Tree tree = {0};
+//     FILE* file_tree_write = fopen(TREE_FILE_WRITE, "w");
+//     FILE* file_tree_read = fopen(TREE_FILE_READ, "r");
+//     Tree tree = {0};
 
-    // tree.root = CreatNode(&tree, "Billiard");
+//     // tree.root = CreatNode(&tree, "Billiard");
 
-    // TreeNode_t* node1 = CreatNode(&tree, "Svoyak");
-    // LinkLeft(tree.root, node1);
+//     // TreeNode_t* node1 = CreatNode(&tree, "Svoyak");
+//     // LinkLeft(tree.root, node1);
 
-    // TreeNode_t* node2 = CreatNode(&tree, "Chuzhak");
-    // LinkRight(tree.root, node2);
+//     // TreeNode_t* node2 = CreatNode(&tree, "Chuzhak");
+//     // LinkRight(tree.root, node2);
 
-    // TreeNode_t* node11 = CreatNode(&tree, "Gay");
-    // TreeNode_t* node12 = CreatNode(&tree, "Pidor");
-    // LinkLeft(node1, node11);
-    // LinkRight(node1, node12);
+//     // TreeNode_t* node11 = CreatNode(&tree, "Gay");
+//     // TreeNode_t* node12 = CreatNode(&tree, "Pidor");
+//     // LinkLeft(node1, node11);
+//     // LinkRight(node1, node12);
 
-    // TreeNode_t* node21 = CreatNode(&tree, "Natural");
-    // TreeNode_t* node22 = CreatNode(&tree, "Getero");
-    // LinkLeft(node2, node21);
-    // LinkRight(node2, node22);
+//     // TreeNode_t* node21 = CreatNode(&tree, "Natural");
+//     // TreeNode_t* node22 = CreatNode(&tree, "Getero");
+//     // LinkLeft(node2, node21);
+//     // LinkRight(node2, node22);
     
 
-    tree.root = ReadNode(&tree, file_tree_read);
+//     tree.root = ReadNode(&tree, file_tree_read);
 
-    PrintStrTree(tree.root, PREORDER, file_tree_write);
-    fflush(file_tree_write);
+//     PrintStrTree(tree.root, PREORDER, file_tree_write);
+//     fflush(file_tree_write);
     
-    TreeDump(&tree, tree.root, ERR_OK, __FILE__, __LINE__, __func__);
-    DestroyBranch(&tree, tree.root);
+//     TreeDump(&tree, tree.root, ERR_OK, __FILE__, __LINE__, __func__);
+//     DestroyBranch(&tree, tree.root);
 
-    fclose(file_tree_write);
-    fclose(file_tree_read);
-    return 0;
-}
+//     fclose(file_tree_write);
+//     fclose(file_tree_read);
+//     return 0;
+// }
 
 TreeNode_t* ReadNode(Tree* tree, FILE* file) {
     my_assert(file != NULL, NULL);
@@ -122,13 +122,13 @@ TreeNode_t* CreatNode(Tree* tree, TreeElem_t elem) {
     node->right = NO_DAUGHTER;
 
     tree->num_of_nodes++;
-    ASSERT_OK(tree, node);
+    ASSERT_OKAY(tree, node);
 
     return node;
 }
 
 void DeleteNode(Tree* tree, TreeNode_t* node) {
-    ASSERT_OK(tree, node);
+    ASSERT_OKAY(tree, node);
 
     if (node->parent != NULL) {
         if (node->parent->left == node) node->parent->left = NULL;

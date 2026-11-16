@@ -1,7 +1,21 @@
 #include "akinator.h"
 
 
+int main() {
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
 
+    FILE* file_tree_write = fopen(TREE_FILE_WRITE, "w");
+    FILE* file_tree_read = fopen(TREE_FILE_READ, "r");
+    Tree tree = {0};
+
+    StartGame(&tree, file_tree_read, file_tree_write);
+
+    DestroyBranch(&tree, tree.root);
+    fclose(file_tree_read);
+    fclose(file_tree_write);
+    return 0;
+}
 
 void Guess(Tree* tree) {
     my_assert(tree != NULL,);
@@ -30,61 +44,220 @@ void Guess(Tree* tree) {
     if (strcmp(answer, "y") == 0) {
         printf("Great!\n");
     } else {
-        char not_guessed[LEN] = "";
-        printf("Please enter name of person that you thinked about\n");
-        scanf("%s", not_guessed);
-
-        char question[LEN] = "";
-        printf("Please enter a question that yes for your person and no for my guess\n");
-        scanf("%s", question);
-
-        //need func
+        AddObject(tree, current_node);
     }
 }
 
-void StartGame() {
-    printf("Добро пожаловать в акинатор! Выберите режим:\n");
-    printf("1. Угадать персонажа\n");
-    printf("2. Показать дерево персонажей\n");
-    printf("3. Добавить персонажа и его разделяющее свойство\n");
-    printf("4. Выдать определение указанного объекта\n");
-    printf("5. Сравнить персонажей\n");
-    printf("6. Выйти без сохранения\n");
-    printf("7. Выйти с сохранением\n");
+void AddObject(Tree* tree, TreeNode_t* node) {
+    my_assert(tree,);
+    my_assert(node,);
 
-    int mode = 0;
-    scanf("%d", &mode);
+    TreeElem_t expected = node->data;
 
-    enum modes {GUESS = 1, SHOW = 2, ADD = 3, DEF = 4, COMPARE = 5, OUT = 6, SAVE = 7};
+    char not_guessed[LEN] = "";
+    printf("Please enter name of person that you thinked about\n");
+    scanf("%s", not_guessed);
 
-    switch(mode) {
+    char question[LEN] = "";
+    printf("Please enter a question that yes for your person and no for my guess\n");
+    scanf("%s", question);
 
-        case GUESS:
-            
-            break;
+    TreeNode_t* ans_yes = CreatNode(tree, not_guessed);
+    TreeNode_t* ans_no = CreatNode(tree, expected);
 
-        case SHOW:
+    LinkLeft(node, ans_no);
+    LinkRight(node, ans_yes);
 
-            break;
 
-        case ADD:
+    strcpy((char*)node->data, question);
+}
 
-            break;
 
-        case DEF:
 
-            break;
+void StartGame(Tree* tree, FILE* file_r, FILE* file_w) {
+    my_assert(tree,);
+    my_assert(file_r,);
+    my_assert(file_w,);
 
-        case COMPARE:
+    tree->root = ReadNode(tree, file_r);
+    int exit_flag = 0;
+    PrintStrTree(tree->root, PREORDER, file_w);
 
-            break;
+    while(exit_flag == 0) {
 
-        case OUT:
+        printf("Добро пожаловать в акинатор! Выберите режим:\n"
+        "1. Угадать персонажа\n"
+        "2. Показать дерево персонажей\n"
+        "3. Выдать определение указанного объекта\n"
+        "4. Сравнить персонажей\n"
+        "5. Выйти без сохранения\n"
+        "6. Выйти с сохранением\n"
+        "Введите номер режима\n");
 
-            break;
+        int mode = 0;
+        scanf("%d", &mode);
 
-        case SAVE:
 
-            break;
+        switch(mode) {
+
+            case GUESS:
+                Guess(tree);
+                break;
+
+            case SHOW:
+                system("start dump.png");
+                break;
+
+            case DEF: {
+                printf("Введите имя вашего персонажа\n");
+                char str[LEN] = "";
+                fflush(stdin);
+                scanf("%s", str);
+                Description(FindNode(tree->root, str));
+                break;
+            }
+                
+            case COMPARE: {
+                printf("Введите имя первого персонажа\n");
+                char str1[LEN] = "";
+                fflush(stdin);
+                scanf("%s", str1);
+                TreeNode_t* node1 = FindNode(tree->root, str1);
+
+                printf("Введите имя второго персонажа\n");
+                char str2[LEN] = "";
+                fflush(stdin);
+                scanf("%s", str2);
+                TreeNode_t* node2 = FindNode(tree->root, str2);
+                
+                Compare(node1, node2);
+                break;
+            }
+
+            case OUT_:
+                exit_flag++;
+                break;
+
+            case SAVE:
+                PrintStrTree(tree->root, PREORDER, file_w);
+                exit_flag++;
+                break;
+        }
+    }
+    fflush(stdin);
+}
+
+
+TreeNode_t* FindNode(TreeNode_t* node, const char* name) {
+    if (node == NULL) return NULL;
+
+    if (strcmp(node->data, name) == 0) 
+        return node;
+    
+
+    TreeNode_t* found_left = FindNode(node->left, name);
+    if (found_left != NULL)
+        return found_left;
+
+    TreeNode_t* found_right = FindNode(node->right, name);
+    if (found_right != NULL)
+        return found_right;
+
+    return NULL;
+}
+
+void Description(TreeNode_t* node) {
+    my_assert_tell(node, "Такого персонажа не существует",);
+
+    stack_t stk = {0};
+    STACK_INIT(stk, 10);
+
+    PushInfo(&stk, node);
+
+    errors err = ERR_OK;
+
+    while (stk.size > 0) {
+        TreeNode_t* popped = StackPop(&stk, &err);
+        if (popped->parent->left == popped) printf("не ");
+        printf("%s -> ", popped->parent->data);
+    }
+    printf("%s\n\n", node->data);
+    STACK_DESTROY(stk);
+}
+
+
+
+
+void Compare(TreeNode_t* node1, TreeNode_t* node2) {
+    my_assert_tell(node1, "Такого персонажа не существует",);
+    my_assert_tell(node2, "Такого персонажа не существует",);
+
+    stack_t stk1 = {0};
+    STACK_INIT(stk1, 10);
+
+    stack_t stk2 = {0};
+    STACK_INIT(stk2, 10);
+
+    PushInfo(&stk1, node1);
+    PushInfo(&stk2, node2);
+
+    errors err = ERR_OK;
+
+    TreeNode_t* popped_node1 = StackPop(&stk1, &err);
+    TreeNode_t* popped_node2 = StackPop(&stk2, &err);
+
+    if (popped_node1 == popped_node2) printf("И %s, и %s:\n", node1->data, node2->data);
+
+    for (size_t i = 1; popped_node1 == popped_node2 && popped_node1 != NULL; i++) {
+        printf("%zu) ", i);
+
+        if (popped_node1->parent->left == popped_node1) printf("не ");
+        printf("%s\n", popped_node1->parent->data);
+
+        popped_node1 = (stk1.size > 0) ? StackPop(&stk1, &err) : NULL;
+        popped_node2 = (stk2.size > 0) ? StackPop(&stk2, &err) : NULL;
+    }
+        
+    if (popped_node1 != NULL || popped_node2 != NULL) {
+
+        if (popped_node1 != NULL) printf("Но %s:\n", node1->data);
+        for (size_t i = 1; popped_node1 != NULL; i++) {
+            printf("%zu) ", i);
+            if (popped_node1->parent->left == popped_node1) printf("не ");
+            printf("%s\n", popped_node1->parent->data);
+
+            popped_node1 = (stk1.size > 0) ? StackPop(&stk1, &err) : NULL;
+        }
+
+        if (popped_node2 != NULL) printf("А %s:\n", node2->data);
+        for (size_t i = 1; popped_node2 != NULL; i++) {
+            printf("%zu) ", i);
+            if (popped_node2->parent->left == popped_node2) printf("не ");
+            printf("%s\n", popped_node2->parent->data);
+
+            popped_node2 = (stk2.size > 0) ? StackPop(&stk2, &err) : NULL;
+        }
+    }
+    printf("\n");
+    
+    STACK_DESTROY(stk1);
+    STACK_DESTROY(stk2);
+}
+
+/**
+ * @brief pushs description into the stack
+ * 
+ * @param[in, out] stk stack
+ * @param[in] node remember to free node->data
+ */
+void PushInfo(stack_t* stk, TreeNode_t* node) {
+    my_assert(stk,);
+    my_assert(node,);
+
+    TreeNode_t* current_node = node;
+    
+    while (current_node->parent) {
+        StackPush(stk, current_node);
+        current_node = current_node->parent;
     }
 }

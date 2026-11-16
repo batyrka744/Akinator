@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "my_assert.h"
+#include "enum.h"
 
 #define TREE_FILE_WRITE "tree_file_w.txt"
 #define TREE_FILE_READ "tree_file_r.txt"
@@ -42,19 +43,13 @@ typedef const char* TreeElem_t;
 #define ON_DBG(...)
 #endif
 
-#define ASSERT_OK(tree, node) do {\
+#define ASSERT_OKAY(tree, node) do {\
     errors err = TreeError(tree, node);\
     if (err != ERR_OK) {\
         TreeDump(tree, node, err, __FILE__, __LINE__, __func__);\
         free(node);\
         assert(0);}\
     } while(0)
-
-enum errors {ERR_OK = 0, ERR_NULL_PTR = 1, ERR_NULL_DATA = 2,
-             ERR_WRONG_CAPACITY = 3, ERR_WRONG_SIZE = 4,
-             ERR_OVERFLOW = 5, ERR_NO_MEMORY = 6, ERR_ARR_CANARY = 7, ERR_STK_CANARY = 8,
-             ERR_NO_PARENT = 9};
-
 
 
 struct TreeNode_t {
@@ -96,4 +91,3 @@ void DestroyBranch(Tree* tree, TreeNode_t* node);
 TreeNode_t* ReadNode(Tree* tree, FILE* file);
 
 void AddNode(Tree* tree, TreeNode_t* node, TreeElem_t value);
-
