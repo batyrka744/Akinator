@@ -2,6 +2,7 @@
 #include "tree.h"
 #include <windows.h>
 #include "stack.h"
+#include "tree_dump.h"
 
 enum modes {
     GUESS = 1, 

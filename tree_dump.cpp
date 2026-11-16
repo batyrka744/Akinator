@@ -8,11 +8,19 @@ void TreeDumpGraph(const Tree* tree, const char* reason) {
     my_assert(file != NULL,);
 
     fprintf(file, "digraph Tree {\n");
+
+    fprintf(file, "\tcharset=\"UTF-8\";\n");
+
     fprintf(file, "\trankdir=TB;\n");
-    fprintf(file, "\tnode [style=filled, fillcolor=\"#00FFFF\"];\n\n");
+    fprintf(file, "\tnode [style=filled, fillcolor=\"#00FFFF\", fontname=\"Arial\"];\n\n");
+
+    fprintf(file, "\tedge [fontname=\"Arial\"];\n\n");
 
     fprintf(file, "\tlabelloc=\"t\";\n");
     fprintf(file, "\tlabeljust=\"l\";\n");
+
+    fprintf(file, "\tfontname=\"Arial\";\n");
+
     fprintf(file, "\tlabel=\"Dump: %s \npointer to tree_struct: %p | pointer to root: %p | num_of_nodes: %zu\";\n",
             reason, tree, tree->root, tree->num_of_nodes);
     fprintf(file, "\tfontsize=16;\n\n");
@@ -34,16 +42,18 @@ void RecOutput(TreeNode_t* node, FILE* file, size_t depth) {
     my_assert(file != NULL,);
 
     if (node->parent == NULL)
-        fprintf(file, "\tnode%p [label=\" %s\", fillcolor = \"#FF00FF\"];\n", node, node->data);
+        fprintf(file, "\tnode%p [label=\" %s?\", fillcolor = \"#FF00FF\"];\n", node, node->data);
+    else if (node->left != NULL || node->right != NULL)
+        fprintf(file, "\tnode%p [label=\" %s?\"];\n", node, node->data);
     else
         fprintf(file, "\tnode%p [label=\" %s\"];\n", node, node->data);
 
     if (node->left != NULL) {
-        fprintf(file, "\tnode%p -> node%p [color=\"#B22222\"];\n", node, node->left);
+        fprintf(file, "\tnode%p -> node%p [color=\"#B22222\", label=\"Нет\"];\n", node, node->left);
         RecOutput(node->left, file, depth + 1);
     }     
     if (node->right != NULL) {
-        fprintf(file, "\tnode%p -> node%p [color=\"#2E8B57\"];\n", node, node->right);
+        fprintf(file, "\tnode%p -> node%p [color=\"#2E8B57\", label=\"Да\"];\n", node, node->right);
         RecOutput(node->right, file, depth + 1);
     }
 }

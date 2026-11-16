@@ -5,7 +5,7 @@ int main() {
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
 
-    FILE* file_tree_write = fopen(TREE_FILE_WRITE, "w");
+    FILE* file_tree_write = fopen(TREE_FILE_WRITE, "r");
     FILE* file_tree_read = fopen(TREE_FILE_READ, "r");
     Tree tree = {0};
 
@@ -24,25 +24,24 @@ void Guess(Tree* tree) {
     TreeNode_t* current_node = tree->root;
 
     while (current_node->right != NULL || current_node->left != NULL) {
-        printf("%s\n", current_node->data);
+        printf("%s?\n", current_node->data);
+        fflush(stdin);
         scanf("%s", buffer);
 
-        if (strcmp(buffer, "y") == 0) {
+        if (strcmp(buffer, "д") == 0 || strcmp(buffer, "y") == 0) {
             current_node = current_node->right;
         } else {
             current_node = current_node->left;
         }
     }
 
-
-    strcpy(buffer, "Is it ");
-    printf("Is it %s?\n", current_node->data);
+    printf("Это %s?\n", current_node->data);
 
     char answer[LEN] = "";
     scanf("%s", answer);
     
-    if (strcmp(answer, "y") == 0) {
-        printf("Great!\n");
+    if (strcmp(buffer, "д") == 0 || strcmp(buffer, "y") == 0) {
+        printf("Очевидно\n");
     } else {
         AddObject(tree, current_node);
     }
@@ -55,12 +54,12 @@ void AddObject(Tree* tree, TreeNode_t* node) {
     TreeElem_t expected = node->data;
 
     char not_guessed[LEN] = "";
-    printf("Please enter name of person that you thinked about\n");
-    scanf("%s", not_guessed);
+    printf("Введите имя загаданного персонажа\n");
+    scanf(" %[^\n]", not_guessed);
 
     char question[LEN] = "";
-    printf("Please enter a question that yes for your person and no for my guess\n");
-    scanf("%s", question);
+    printf("Введите вопрос, который верен для вашего персонажа, но не верен для моей догадки\n");
+    scanf(" %[^\n]", question);
 
     TreeNode_t* ans_yes = CreatNode(tree, not_guessed);
     TreeNode_t* ans_no = CreatNode(tree, expected);
@@ -79,9 +78,8 @@ void StartGame(Tree* tree, FILE* file_r, FILE* file_w) {
     my_assert(file_r,);
     my_assert(file_w,);
 
-    tree->root = ReadNode(tree, file_r);
+    tree->root = ReadNode(tree, file_w);
     int exit_flag = 0;
-    PrintStrTree(tree->root, PREORDER, file_w);
 
     while(exit_flag == 0) {
 
@@ -105,6 +103,7 @@ void StartGame(Tree* tree, FILE* file_r, FILE* file_w) {
                 break;
 
             case SHOW:
+                TreeDumpGraph(tree, "Просьба пользователя");
                 system("start dump.png");
                 break;
 
@@ -112,7 +111,7 @@ void StartGame(Tree* tree, FILE* file_r, FILE* file_w) {
                 printf("Введите имя вашего персонажа\n");
                 char str[LEN] = "";
                 fflush(stdin);
-                scanf("%s", str);
+                scanf(" %[^\n]", str);
                 Description(FindNode(tree->root, str));
                 break;
             }
@@ -121,13 +120,13 @@ void StartGame(Tree* tree, FILE* file_r, FILE* file_w) {
                 printf("Введите имя первого персонажа\n");
                 char str1[LEN] = "";
                 fflush(stdin);
-                scanf("%s", str1);
+                scanf(" %[^\n]", str1);
                 TreeNode_t* node1 = FindNode(tree->root, str1);
 
                 printf("Введите имя второго персонажа\n");
                 char str2[LEN] = "";
                 fflush(stdin);
-                scanf("%s", str2);
+                scanf(" %[^\n]", str2);
                 TreeNode_t* node2 = FindNode(tree->root, str2);
                 
                 Compare(node1, node2);
@@ -139,7 +138,10 @@ void StartGame(Tree* tree, FILE* file_r, FILE* file_w) {
                 break;
 
             case SAVE:
-                PrintStrTree(tree->root, PREORDER, file_w);
+                fclose(file_w);
+                FILE* file_new_tree = fopen(TREE_FILE_WRITE, "w");
+                PrintStrTree(tree->root, PREORDER, file_new_tree);
+                fclose(file_new_tree);
                 exit_flag++;
                 break;
         }
@@ -206,7 +208,12 @@ void Compare(TreeNode_t* node1, TreeNode_t* node2) {
     TreeNode_t* popped_node1 = StackPop(&stk1, &err);
     TreeNode_t* popped_node2 = StackPop(&stk2, &err);
 
-    if (popped_node1 == popped_node2) printf("И %s, и %s:\n", node1->data, node2->data);
+    int no_flag = 0;
+
+    if (popped_node1 == popped_node2) {
+        printf("И %s, и %s:\n", node1->data, node2->data);
+        no_flag = 1;
+    }
 
     for (size_t i = 1; popped_node1 == popped_node2 && popped_node1 != NULL; i++) {
         printf("%zu) ", i);
@@ -220,7 +227,8 @@ void Compare(TreeNode_t* node1, TreeNode_t* node2) {
         
     if (popped_node1 != NULL || popped_node2 != NULL) {
 
-        if (popped_node1 != NULL) printf("Но %s:\n", node1->data);
+        if (no_flag) printf("Но %s:\n", node1->data);
+        else printf("%s:\n", node1->data);
         for (size_t i = 1; popped_node1 != NULL; i++) {
             printf("%zu) ", i);
             if (popped_node1->parent->left == popped_node1) printf("не ");
