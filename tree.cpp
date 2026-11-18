@@ -1,47 +1,6 @@
 
 #include "tree_dump.h"
-//header guard
-//zvuki ph actresses
 
-
-// int main() {
-//     clean_file(LOG_FILE);
-
-//     FILE* file_tree_write = fopen(TREE_FILE_WRITE, "w");
-//     FILE* file_tree_read = fopen(TREE_FILE_READ, "r");
-//     Tree tree = {0};
-
-//     // tree.root = CreatNode(&tree, "Billiard");
-
-//     // TreeNode_t* node1 = CreatNode(&tree, "Svoyak");
-//     // LinkLeft(tree.root, node1);
-
-//     // TreeNode_t* node2 = CreatNode(&tree, "Chuzhak");
-//     // LinkRight(tree.root, node2);
-
-//     // TreeNode_t* node11 = CreatNode(&tree, "Gay");
-//     // TreeNode_t* node12 = CreatNode(&tree, "Pidor");
-//     // LinkLeft(node1, node11);
-//     // LinkRight(node1, node12);
-
-//     // TreeNode_t* node21 = CreatNode(&tree, "Natural");
-//     // TreeNode_t* node22 = CreatNode(&tree, "Getero");
-//     // LinkLeft(node2, node21);
-//     // LinkRight(node2, node22);
-    
-
-//     tree.root = ReadNode(&tree, file_tree_read);
-
-//     PrintStrTree(tree.root, PREORDER, file_tree_write);
-//     fflush(file_tree_write);
-    
-//     TreeDump(&tree, tree.root, ERR_OK, __FILE__, __LINE__, __func__);
-//     DestroyBranch(&tree, tree.root);
-
-//     fclose(file_tree_write);
-//     fclose(file_tree_read);
-//     return 0;
-// }
 
 TreeNode_t* ReadNode(Tree* tree, FILE* file) {
     my_assert(file != NULL, NULL);
@@ -154,11 +113,11 @@ void DeleteNode(Tree* tree, TreeNode_t* node) {
 }
 
 void DestroyBranch(Tree* tree, TreeNode_t* node) {
-    my_assert(node != NULL,);
+    my_assert(tree != NULL,);
 
-    if (node->left)
+    if (node->left != NULL)
         DestroyBranch(tree, node->left);
-    if (node->right)
+    if (node->right != NULL)
         DestroyBranch(tree, node->right);
 
     DeleteNode(tree, node);

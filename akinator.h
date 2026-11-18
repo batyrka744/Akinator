@@ -16,11 +16,13 @@ enum modes {
 #define BUFFER_LENGTH 5000
 
 
-
+char* SpaceTo_(const char* str);
 
 void Guess(Tree* tree);
 
-void StartGame(Tree* tree, FILE* file_r, FILE* file_w);
+void Speak(const char* str);
+
+void StartGame(Tree* tree, FILE* file);
 
 void AddObject(Tree* tree, TreeNode_t* node);
 

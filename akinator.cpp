@@ -1,19 +1,20 @@
 #include "akinator.h"
-
+//#define AKINATOR_SPEAK
 
 int main() {
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
 
     FILE* file_tree_write = fopen(TREE_FILE_WRITE, "r");
-    FILE* file_tree_read = fopen(TREE_FILE_READ, "r");
+    my_assert(file_tree_write != NULL, -1);
     Tree tree = {0};
 
-    StartGame(&tree, file_tree_read, file_tree_write);
+    StartGame(&tree, file_tree_write);
 
     DestroyBranch(&tree, tree.root);
-    fclose(file_tree_read);
+    
     fclose(file_tree_write);
+
     return 0;
 }
 
@@ -24,7 +25,12 @@ void Guess(Tree* tree) {
     TreeNode_t* current_node = tree->root;
 
     while (current_node->right != NULL || current_node->left != NULL) {
+
         printf("%s?\n", current_node->data);
+
+        Speak(current_node->data);
+        
+
         fflush(stdin);
         scanf("%s", buffer);
 
@@ -35,17 +41,67 @@ void Guess(Tree* tree) {
         }
     }
 
+    
+    char* fixed_name = SpaceTo_(current_node->data);
+    
+    char img_path[LEN] = "";
+    sprintf(img_path, "Photos\\%s.jpg", fixed_name);
+    
+    FILE* f_bat = fopen("For_rubbish\\open_img.bat", "w");
+    if (f_bat != NULL) {
+        fprintf(f_bat, "chcp 65001 > nul\n start %s", img_path);
+        fclose(f_bat);
+        
+        system("For_rubbish\\open_img.bat");
+    }
+    
+    free(fixed_name);
+
     printf("Это %s?\n", current_node->data);
+    Speak(current_node->data);
+
 
     char answer[LEN] = "";
     scanf("%s", answer);
     
-    if (strcmp(buffer, "д") == 0 || strcmp(buffer, "y") == 0) {
+    if (strcmp(answer, "д") == 0 || strcmp(answer, "y") == 0) {
         printf("Очевидно\n");
     } else {
         AddObject(tree, current_node);
     }
 }
+
+
+char* SpaceTo_(const char* str) {
+    my_assert(str != NULL, NULL);
+
+    char* new_str = strdup(str);
+    my_assert(new_str != NULL, NULL);
+    char* ptr = strchr(new_str, ' ');
+    *ptr = '_';
+
+    return new_str;
+}
+
+void Speak(const char* str) {
+    my_assert(str != NULL,)
+    #ifdef AKINATOR_SPEAK
+        FILE* f_voice = fopen("For_rubbish\\voice.txt", "w");
+        if (f_voice != NULL) {
+            fprintf(f_voice, "%s", str);
+            fclose(f_voice);
+
+            system("powershell -Command \"Add-Type -AssemblyName System.Speech; "
+                    "$s = New-Object System.Speech.Synthesis.SpeechSynthesizer; "
+                    "$s.SelectVoice('Microsoft Irina Desktop'); "
+                    "$text = Get-Content 'For_rubbish\\voice.txt' -Encoding UTF8; "
+                    "$s.Speak($text);\"");
+        }
+    #endif
+}
+
+
+
 
 void AddObject(Tree* tree, TreeNode_t* node) {
     my_assert(tree,);
@@ -73,13 +129,14 @@ void AddObject(Tree* tree, TreeNode_t* node) {
 
 
 
-void StartGame(Tree* tree, FILE* file_r, FILE* file_w) {
+void StartGame(Tree* tree, FILE* file) {
     my_assert(tree,);
-    my_assert(file_r,);
-    my_assert(file_w,);
+    my_assert(file,);
 
-    tree->root = ReadNode(tree, file_w);
+    tree->root = ReadNode(tree, file);
     int exit_flag = 0;
+
+    Speak("Привет Артёмчик! Скидывай свою почту и пароль и мы будем открывать с тобой кейсики");
 
     while(exit_flag == 0) {
 
@@ -92,6 +149,8 @@ void StartGame(Tree* tree, FILE* file_r, FILE* file_w) {
         "6. Выйти с сохранением\n"
         "Введите номер режима\n");
 
+        Speak("На ваш номер был успешно оформлен кредит на сумму пять тысяч рублей");
+
         int mode = 0;
         scanf("%d", &mode);
 
@@ -103,11 +162,13 @@ void StartGame(Tree* tree, FILE* file_r, FILE* file_w) {
                 break;
 
             case SHOW:
+                Speak("С вашей карты успешно списано 1200 рублей");
                 TreeDumpGraph(tree, "Просьба пользователя");
                 system("start dump.png");
                 break;
 
             case DEF: {
+                Speak("Подписка на секс видео роблокс успешно оформлена");
                 printf("Введите имя вашего персонажа\n");
                 char str[LEN] = "";
                 fflush(stdin);
@@ -117,6 +178,7 @@ void StartGame(Tree* tree, FILE* file_r, FILE* file_w) {
             }
                 
             case COMPARE: {
+                
                 printf("Введите имя первого персонажа\n");
                 char str1[LEN] = "";
                 fflush(stdin);
@@ -135,17 +197,26 @@ void StartGame(Tree* tree, FILE* file_r, FILE* file_w) {
 
             case OUT_:
                 exit_flag++;
+                Speak("Ваш сын смотрит порно");
                 break;
 
-            case SAVE:
-                fclose(file_w);
+            case SAVE: {
+                fclose(file);
                 FILE* file_new_tree = fopen(TREE_FILE_WRITE, "w");
                 PrintStrTree(tree->root, PREORDER, file_new_tree);
                 fclose(file_new_tree);
                 exit_flag++;
                 break;
+            }
+
+            default:
+                printf(RED "Wrong mode's number\n" RESET);
+                exit_flag++;
+                break;
         }
     }
+
+    if (tree->root != NULL) DestroyBranch(tree, tree->root);
     fflush(stdin);
 }
 

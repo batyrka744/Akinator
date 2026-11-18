@@ -9,8 +9,7 @@
 #include "my_assert.h"
 #include "enum.h"
 
-#define TREE_FILE_WRITE "tree_file_w.txt"
-#define TREE_FILE_READ "tree_file_r.txt"
+#define TREE_FILE_WRITE "buffer.txt"
 
 typedef const char* TreeElem_t;
 
