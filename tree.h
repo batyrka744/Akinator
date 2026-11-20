@@ -24,7 +24,7 @@ typedef const char* TreeElem_t;
 
 #define POISON ""
 
-#define LOG_FILE "log.html"
+#define LOG_FILE "Dump_elems\\log.html"
 
 #define BLACK "\x1b[30m"
 #define RED "\x1b[31m"

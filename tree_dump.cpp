@@ -4,7 +4,7 @@ void TreeDumpGraph(const Tree* tree, const char* reason) {
     my_assert(tree != NULL,);
     my_assert(reason != NULL,);
 
-    FILE* file = fopen("dump.dot", "w");
+    FILE* file = fopen("Dump_Elems\\dump.dot", "w");
     my_assert(file != NULL,);
 
     fprintf(file, "digraph Tree {\n");
@@ -33,7 +33,7 @@ void TreeDumpGraph(const Tree* tree, const char* reason) {
     fclose(file);
 
 
-    system("dot -Tpng dump.dot -o dump.png");
+    system("dot -Tpng Dump_Elems\\dump.dot -o Dump_Elems\\dump.png");
 }
 
 

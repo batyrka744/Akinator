@@ -49,7 +49,7 @@ void Guess(Tree* tree) {
     
     FILE* f_bat = fopen("For_rubbish\\open_img.bat", "w");
     if (f_bat != NULL) {
-        fprintf(f_bat, "chcp 65001 > nul\n start %s", img_path);
+        fprintf(f_bat, "chcp 65001 > nul\nif exist \"%s\" start \"\" \"%s\"", img_path, img_path);
         fclose(f_bat);
         
         system("For_rubbish\\open_img.bat");
@@ -77,8 +77,12 @@ char* SpaceTo_(const char* str) {
 
     char* new_str = strdup(str);
     my_assert(new_str != NULL, NULL);
+
     char* ptr = strchr(new_str, ' ');
-    *ptr = '_';
+    while (ptr != NULL) {
+        *ptr = '_';
+        ptr = strchr(ptr + 1, ' ');
+    }
 
     return new_str;
 }
@@ -124,7 +128,8 @@ void AddObject(Tree* tree, TreeNode_t* node) {
     LinkRight(node, ans_yes);
 
 
-    strcpy((char*)node->data, question);
+    free((char*)node->data);
+    node->data = strdup(question);
 }
 
 
@@ -164,7 +169,7 @@ void StartGame(Tree* tree, FILE* file) {
             case SHOW:
                 Speak("С вашей карты успешно списано 1200 рублей");
                 TreeDumpGraph(tree, "Просьба пользователя");
-                system("start dump.png");
+                system("start Dump_elems\\dump.png");
                 break;
 
             case DEF: {
@@ -216,7 +221,6 @@ void StartGame(Tree* tree, FILE* file) {
         }
     }
 
-    if (tree->root != NULL) DestroyBranch(tree, tree->root);
     fflush(stdin);
 }
 

@@ -1,2 +1,2 @@
 chcp 65001 > nul
- start Photos\Diana_Rider.jpg
+if exist "Photos\ShroomQ.jpg" start "" "Photos\ShroomQ.jpg"
